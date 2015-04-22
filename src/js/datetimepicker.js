@@ -31,7 +31,8 @@
       dropdownSelector: null,
       minuteStep: 5,
       minView: 'minute',
-      startView: 'day'
+      startView: 'day',
+      buddhistEra: false
     })
     .directive('datetimepicker', ['$log', 'dateTimePickerConfig', function datetimepickerDirective($log, defaultConfig) {
 
@@ -59,7 +60,7 @@
       }
 
       var validateConfiguration = function validateConfiguration(configuration) {
-        var validOptions = ['startView', 'minView', 'minuteStep', 'dropdownSelector'];
+        var validOptions = ['startView', 'minView', 'minuteStep', 'dropdownSelector', 'buddhistEra'];
 
         for (var prop in configuration) {
           //noinspection JSUnfilteredForInLoop
@@ -160,11 +161,17 @@
 
           var dataFactory = {
             year: function year(unixDate) {
+              var addBuddhistEraYear = 0;
+              if(configuration.buddhistEra) {
+                addBuddhistEraYear = 543;
+              }
               var selectedDate = moment.utc(unixDate).startOf('year');
               // View starts one year before the decade starts and ends one year after the decade ends
               // i.e. passing in a date of 1/1/2013 will give a range of 2009 to 2020
               // Truncate the last digit from the current year and subtract 1 to get the start of the decade
               var startDecade = (parseInt(selectedDate.year() / 10, 10) * 10);
+              var startDecadeDisplay = (parseInt(selectedDate.year() / 10, 10) * 10) + addBuddhistEraYear;
+
               var startDate = moment.utc(startOfDecade(unixDate)).subtract(1, 'year').startOf('year');
 
               var activeYear = ngModelController.$modelValue ? moment(ngModelController.$modelValue).year() : 0;
@@ -174,7 +181,7 @@
                 'nextView': configuration.minView === 'year' ? 'setTime' : 'month',
                 'previousViewDate': new DateObject({
                   utcDateValue: null,
-                  display: startDecade + '-' + (startDecade + 9)
+                  display: startDecadeDisplay + '-' + (startDecadeDisplay + 9)
                 }),
                 'leftDate': new DateObject({utcDateValue: moment.utc(startDate).subtract(9, 'year').valueOf()}),
                 'rightDate': new DateObject({utcDateValue: moment.utc(startDate).add(11, 'year').valueOf()}),
@@ -183,9 +190,11 @@
 
               for (var i = 0; i < 12; i += 1) {
                 var yearMoment = moment.utc(startDate).add(i, 'years');
+                var yearMomentDisplay = moment.utc(startDate).add(i + 543, 'years');
+                
                 var dateValue = {
                   'utcDateValue': yearMoment.valueOf(),
-                  'display': yearMoment.format('YYYY'),
+                  'display': yearMomentDisplay.format('YYYY'),
                   'past': yearMoment.year() < startDecade,
                   'future': yearMoment.year() > startDecade + 9,
                   'active': yearMoment.year() === activeYear
@@ -198,8 +207,13 @@
             },
 
             month: function month(unixDate) {
-
+              var addBuddhistEraYear = 0;
+              if(configuration.buddhistEra) {
+                addBuddhistEraYear = 543;
+              }
               var startDate = moment.utc(unixDate).startOf('year');
+              var startDateDisplay = moment.utc(unixDate).startOf('year').add(addBuddhistEraYear, 'years');
+
               var previousViewDate = startOfDecade(unixDate);
               var activeDate = ngModelController.$modelValue ? moment(ngModelController.$modelValue).format('YYYY-MMM') : 0;
 
@@ -209,7 +223,7 @@
                 'nextView': configuration.minView === 'month' ? 'setTime' : 'day',
                 'previousViewDate': new DateObject({
                   utcDateValue: previousViewDate.valueOf(),
-                  display: startDate.format('YYYY')
+                  display: startDateDisplay.format('YYYY')
                 }),
                 'leftDate': new DateObject({utcDateValue: moment.utc(startDate).subtract(1, 'year').valueOf()}),
                 'rightDate': new DateObject({utcDateValue: moment.utc(startDate).add(1, 'year').valueOf()}),
@@ -231,9 +245,14 @@
             },
 
             day: function day(unixDate) {
-
+              var addBuddhistEraYear = 0;
+              if(configuration.buddhistEra) {
+                addBuddhistEraYear = 543;
+              }
               var selectedDate = moment.utc(unixDate);
               var startOfMonth = moment.utc(selectedDate).startOf('month');
+              var startOfMonthDisplay = moment.utc(selectedDate).startOf('month').add(addBuddhistEraYear, 'years');
+              
               var previousViewDate = moment.utc(selectedDate).startOf('year');
               var endOfMonth = moment.utc(selectedDate).endOf('month');
 
@@ -247,7 +266,7 @@
                 'nextView': configuration.minView === 'day' ? 'setTime' : 'hour',
                 'previousViewDate': new DateObject({
                   utcDateValue: previousViewDate.valueOf(),
-                  display: startOfMonth.format('YYYY-MMM')
+                  display: startOfMonthDisplay.format('MMM-YYYY')
                 }),
                 'leftDate': new DateObject({utcDateValue: moment.utc(startOfMonth).subtract(1, 'months').valueOf()}),
                 'rightDate': new DateObject({utcDateValue: moment.utc(startOfMonth).add(1, 'months').valueOf()}),
@@ -280,7 +299,13 @@
             },
 
             hour: function hour(unixDate) {
+              var addBuddhistEraYear = 0;
+              if(configuration.buddhistEra) {
+                addBuddhistEraYear = 543;
+              }
               var selectedDate = moment.utc(unixDate).startOf('day');
+              var selectedDateDisplay = moment.utc(unixDate).startOf('day').add(addBuddhistEraYear, 'years');
+
               var previousViewDate = moment.utc(selectedDate).startOf('month');
 
               var activeFormat = ngModelController.$modelValue ? moment(ngModelController.$modelValue).format('YYYY-MM-DD H') : '';
@@ -291,7 +316,7 @@
                 'nextView': configuration.minView === 'hour' ? 'setTime' : 'minute',
                 'previousViewDate': new DateObject({
                   utcDateValue: previousViewDate.valueOf(),
-                  display: selectedDate.format('ll')
+                  display: selectedDateDisplay.format('ll')
                 }),
                 'leftDate': new DateObject({utcDateValue: moment.utc(selectedDate).subtract(1, 'days').valueOf()}),
                 'rightDate': new DateObject({utcDateValue: moment.utc(selectedDate).add(1, 'days').valueOf()}),
@@ -313,7 +338,13 @@
             },
 
             minute: function minute(unixDate) {
+              var addBuddhistEraYear = 0;
+              if(configuration.buddhistEra) {
+                addBuddhistEraYear = 543;
+              }
               var selectedDate = moment.utc(unixDate).startOf('hour');
+              var selectedDateDisplay = moment.utc(unixDate).startOf('hour').add(addBuddhistEraYear, 'years');
+
               var previousViewDate = moment.utc(selectedDate).startOf('day');
               var activeFormat = ngModelController.$modelValue ? moment(ngModelController.$modelValue).format('YYYY-MM-DD H:mm') : '';
 
@@ -323,7 +354,7 @@
                 'nextView': 'setTime',
                 'previousViewDate': new DateObject({
                   utcDateValue: previousViewDate.valueOf(),
-                  display: selectedDate.format('lll')
+                  display: selectedDateDisplay.format('lll')
                 }),
                 'leftDate': new DateObject({utcDateValue: moment.utc(selectedDate).subtract(1, 'hours').valueOf()}),
                 'rightDate': new DateObject({utcDateValue: moment.utc(selectedDate).add(1, 'hours').valueOf()}),
