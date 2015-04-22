@@ -190,7 +190,7 @@
 
               for (var i = 0; i < 12; i += 1) {
                 var yearMoment = moment.utc(startDate).add(i, 'years');
-                var yearMomentDisplay = moment.utc(startDate).add(i + 543, 'years');
+                var yearMomentDisplay = moment.utc(startDate).add(i + addBuddhistEraYear, 'years');
                 
                 var dateValue = {
                   'utcDateValue': yearMoment.valueOf(),
@@ -266,7 +266,7 @@
                 'nextView': configuration.minView === 'day' ? 'setTime' : 'hour',
                 'previousViewDate': new DateObject({
                   utcDateValue: previousViewDate.valueOf(),
-                  display: startOfMonthDisplay.format('MMM-YYYY')
+                  display: startOfMonthDisplay.format('YYYY-MMM')
                 }),
                 'leftDate': new DateObject({utcDateValue: moment.utc(startOfMonth).subtract(1, 'months').valueOf()}),
                 'rightDate': new DateObject({utcDateValue: moment.utc(startOfMonth).add(1, 'months').valueOf()}),
