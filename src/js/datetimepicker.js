@@ -234,7 +234,7 @@
                 var monthMoment = moment.utc(startDate).add(i, 'months');
                 var dateValue = {
                   'utcDateValue': monthMoment.valueOf(),
-                  'display': monthMoment.format('MMM'),
+                  'display': monthMoment.format('MMMM'),
                   'active': monthMoment.format('YYYY-MMM') === activeDate
                 };
 
@@ -266,7 +266,7 @@
                 'nextView': configuration.minView === 'day' ? 'setTime' : 'hour',
                 'previousViewDate': new DateObject({
                   utcDateValue: previousViewDate.valueOf(),
-                  display: startOfMonthDisplay.format('YYYY-MMM')
+                  display: startOfMonthDisplay.format('MMMM YYYY')
                 }),
                 'leftDate': new DateObject({utcDateValue: moment.utc(startOfMonth).subtract(1, 'months').valueOf()}),
                 'rightDate': new DateObject({utcDateValue: moment.utc(startOfMonth).add(1, 'months').valueOf()}),
